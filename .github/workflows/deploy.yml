@@ -3,7 +3,7 @@ name: Deploy Quartz site
 on:
   push:
     branches:
-      - main
+      - main  # se ejecuta cada vez que haces push a main
 
 permissions:
   contents: read
@@ -14,24 +14,33 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      # 1️⃣ Checkout del repo
+      - name: Checkout repository
         uses: actions/checkout@v4
 
+      # 2️⃣ Instalar Node
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 22
 
+      # 3️⃣ Instalar dependencias
       - name: Install dependencies
         run: npm install
 
+      # 4️⃣ Limpiar build anterior
+      - name: Clean previous build
+        run: rm -rf build/*
+
+      # 5️⃣ Generar Quartz
       - name: Build Quartz
         run: npx quartz build
 
+      # 6️⃣ Subir build completo como artifact
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: public
+          path: build
 
   deploy:
     needs: build
@@ -39,5 +48,6 @@ jobs:
     environment:
       name: github-pages
     steps:
-      - name: Deploy
+      # 7️⃣ Deploy a GitHub Pages reemplazando todo
+      - name: Deploy to GitHub Pages
         uses: actions/deploy-pages@v4
